@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZARIF 2025 — Book</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #0a1628; color: #e0e8f0; min-height: 100vh; }
+  .hero { background: linear-gradient(135deg, #0a1628 0%, #1a2d4d 50%, #0d2040 100%); padding: 40px 20px; text-align: center; border-bottom: 2px solid #c9a227; }
+  .hero h1 { font-size: clamp(22px, 4vw, 36px); color: #c9a227; font-weight: 900; letter-spacing: 1px; margin-bottom: 8px; }
+  .hero h2 { font-size: clamp(14px, 2.5vw, 20px); color: #a0b8d0; font-weight: 400; margin-bottom: 16px; }
+  .badge { display: inline-block; background: #c9a227; color: #0a1628; font-size: 12px; font-weight: 700; padding: 4px 14px; border-radius: 20px; margin-bottom: 20px; letter-spacing: 1px; }
+  .container { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 40px; }
+  .card { background: #111f35; border: 1px solid #1e3a5f; border-radius: 12px; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.4); }
+  .card-header { padding: 20px; border-bottom: 1px solid #1e3a5f; }
+  .card-header.free { background: linear-gradient(135deg, #0d3a2a, #0a2d1f); border-left: 4px solid #2a9d6a; }
+  .card-header.paid { background: linear-gradient(135deg, #2d1a00, #3d2800); border-left: 4px solid #c9a227; }
+  .card-type { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .card-type.free { color: #2a9d6a; }
+  .card-type.paid { color: #c9a227; }
+  .card-title { font-size: 18px; font-weight: 700; color: #e8f4ff; margin-bottom: 4px; }
+  .card-sub { font-size: 13px; color: #7a95b0; }
+  .card-body { padding: 20px; }
+  .price-tag { font-size: 32px; font-weight: 900; color: #c9a227; margin: 10px 0 4px; }
+  .price-sub { font-size: 12px; color: #7a95b0; margin-bottom: 16px; }
+  .features { list-style: none; margin-bottom: 20px; }
+  .features li { font-size: 13px; color: #a0b8d0; padding: 5px 0; display: flex; align-items: flex-start; gap: 8px; }
+  .features li::before { content: "✓"; color: #2a9d6a; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .features li.locked::before { content: "🔒"; color: #c9a227; }
+  .btn { display: block; width: 100%; padding: 13px 20px; border: none; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; text-align: center; text-decoration: none; transition: opacity 0.2s, transform 0.1s; }
+  .btn:hover { opacity: 0.88; transform: scale(0.99); }
+  .btn:active { transform: scale(0.97); }
+  .btn-free { background: #1a4d38; color: #2ecc8a; border: 1px solid #2a9d6a; }
+  .btn-paid { background: linear-gradient(135deg, #c9a227, #e8b832); color: #0a1628; }
+  .btn-pdf { background: #1a2d4d; color: #5ba3e0; border: 1px solid #2a5080; margin-top: 8px; font-size: 13px; padding: 10px; }
+  /* PDF viewer modal */
+  .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+  .modal.active { display: flex; }
+  .modal-box { background: #111f35; border: 1px solid #2a5080; border-radius: 12px; width: 100%; max-width: 860px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
+  .modal-head { padding: 16px 20px; border-bottom: 1px solid #1e3a5f; display: flex; align-items: center; justify-content: space-between; background: #0d1a2d; }
+  .modal-head h3 { font-size: 15px; color: #c9a227; font-weight: 700; }
+  .modal-close { background: none; border: none; color: #7a95b0; font-size: 22px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  .modal-close:hover { color: #e0e8f0; }
+  .modal-body { flex: 1; overflow: hidden; }
+  .modal-body iframe { width: 100%; height: 100%; min-height: 500px; border: none; display: block; }
+  /* PayPal modal */
+  .paypal-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
+  .paypal-modal.active { display: flex; }
+  .paypal-box { background: #111f35; border: 2px solid #c9a227; border-radius: 16px; width: 100%; max-width: 480px; padding: 32px 28px; text-align: center; }
+  .paypal-box h3 { font-size: 20px; color: #c9a227; font-weight: 800; margin-bottom: 8px; }
+  .paypal-box p { font-size: 14px; color: #a0b8d0; margin-bottom: 24px; line-height: 1.6; }
+  .paypal-price { font-size: 44px; font-weight: 900; color: #e8f4ff; margin: 16px 0 8px; }
+  .paypal-price span { font-size: 22px; color: #7a95b0; }
+  .paypal-btn { display: inline-block; background: #ffc439; color: #003087; font-size: 17px; font-weight: 800; padding: 15px 40px; border-radius: 50px; text-decoration: none; margin: 8px 0; width: 100%; border: none; cursor: pointer; letter-spacing: 0.5px; }
+  .paypal-note { font-size: 12px; color: #556a80; margin-top: 16px; line-height: 1.5; }
+  .paypal-close { background: none; border: 1px solid #1e3a5f; color: #7a95b0; font-size: 14px; padding: 8px 20px; border-radius: 8px; cursor: pointer; margin-top: 12px; width: 100%; }
+  .paypal-close:hover { border-color: #2a5080; color: #a0b8d0; }
+  /* After payment - access section */
+  .access-section { display: none; background: #0d3a2a; border: 1px solid #2a9d6a; border-radius: 12px; padding: 24px; margin-top: 16px; text-align: center; }
+  .access-section.visible { display: block; }
+  .access-section h4 { color: #2ecc8a; font-size: 16px; margin-bottom: 10px; }
+  .access-section p { color: #a0b8d0; font-size: 13px; margin-bottom: 16px; }
+  /* Info section */
+  .info-section { background: #0d1a2d; border-radius: 12px; padding: 24px; margin-bottom: 32px; border: 1px solid #1e3a5f; }
+  .info-section h3 { color: #c9a227; font-size: 18px; margin-bottom: 16px; }
+  .toc-list { column-count: 2; column-gap: 20px; list-style: none; }
+  .toc-list li { font-size: 13px; color: #7a95b0; padding: 4px 0; padding-left: 18px; position: relative; }
+  .toc-list li::before { content: "›"; position: absolute; left: 0; color: #c9a227; font-weight: 700; }
+  @media (max-width: 480px) { .toc-list { column-count: 1; } }
+  .download-link { display: inline-flex; align-items: center; gap: 8px; background: #1a2d4d; color: #5ba3e0; padding: 10px 18px; border-radius: 8px; text-decoration: none; font-size: 14px; border: 1px solid #2a5080; margin-top: 12px; }
+  .download-link:hover { background: #1e3a5f; }
+  .footer-note { text-align: center; font-size: 12px; color: #3a5470; padding: 20px; border-top: 1px solid #1e3a5f; margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="badge">ZARIF 2025 — BOOK 1</div>
+  <h1>WORLD'S FIRST IDEAL SEWING TECHNOLOGY</h1>
+  <h2>The Technological Dead End of the 19th Century</h2>
+  <p style="color:#5ba3e0; font-size:13px;">by Zarif Sharifovich Tadjibaev, PhD · Tashkent, 2026</p>
+</div>
+
+<div class="container">
+
+  <!-- Book description -->
+  <div class="info-section">
+    <h3>📖 About this book</h3>
+    <p style="font-size:14px; color:#a0b8d0; line-height:1.7; margin-bottom:16px;">
+      The world's first comprehensive guide to revolutionary ZARIF 2025 sewing technology — 
+      solving the 170-year-old problem of automating sewing production. Based on US Patent No. 6,095,069.
+    </p>
+    <ul class="toc-list">
+      <li>Crisis of traditional technologies</li>
+      <li>The forgotten genius & birth of an idea</li>
+      <li>Anatomy of a revolution: ZARIF 2025</li>
+      <li>Ten breakthroughs changing the industry</li>
+      <li>Prototype in extreme tests</li>
+      <li>Industrial ecosystem of the future</li>
+      <li>Integration with humanoid robots & AI</li>
+      <li>ZARIF Autonomous Factory</li>
+      <li>Economics and payback (ROI 11.1 months)</li>
+      <li>Roadmap 2026–2035</li>
+      <li>Investment opportunity ($400–900B market)</li>
+    </ul>
+  </div>
+
+  <!-- Cards -->
+  <div class="cards">
+
+    <!-- FREE EXCERPT -->
+    <div class="card">
+      <div class="card-header free">
+        <div class="card-type free">FREE EXCERPT</div>
+        <div class="card-title">Book 1 — Preview</div>
+        <div class="card-sub">First 4 pages · PDF · Read online</div>
+      </div>
+      <div class="card-body">
+        <div class="price-tag">FREE</div>
+        <div class="price-sub">No registration required</div>
+        <ul class="features">
+          <li>Cover &amp; table of contents</li>
+          <li>About the book &amp; author</li>
+          <li>Introduction (170 years of stagnation)</li>
+          <li>Chapter 1 — start of crisis analysis</li>
+          <li class="locked">Full 39 pages (paid)</li>
+          <li class="locked">All technical specifications (paid)</li>
+        </ul>
+        <button class="btn btn-free" onclick="openExcerpt()">📄 Read Excerpt Online</button>
+        <a class="btn btn-pdf" href="Отрывка_Книга_1_С_обложкой_EN.pdf" download>⬇ Download Excerpt (PDF)</a>
+      </div>
+    </div>
+
+    <!-- FULL BOOK -->
+    <div class="card">
+      <div class="card-header paid">
+        <div class="card-type paid">⭐ FULL BOOK</div>
+        <div class="card-title">Book 1 — Complete Edition</div>
+        <div class="card-sub">All 39 pages · Read online after payment</div>
+      </div>
+      <div class="card-body">
+        <div class="price-tag">$99</div>
+        <div class="price-sub">One-time payment via PayPal</div>
+        <ul class="features">
+          <li>Full 39-page book</li>
+          <li>All 11 defects of lockstitch analyzed</li>
+          <li>Complete ZARIF 2025 kinematics</li>
+          <li>Robot &amp; AI integration chapters</li>
+          <li>Economics, ROI, investment data</li>
+          <li>Technical appendices &amp; BOM</li>
+        </ul>
+        <button class="btn btn-paid" onclick="openPayPal()">💳 Buy Now — $99</button>
+        <!-- Access section shown after payment confirmation -->
+        <div class="access-section" id="accessSection">
+          <h4>✅ Payment confirmed!</h4>
+          <p>Thank you! Click below to read the full book.</p>
+          <button class="btn btn-free" onclick="openFullBook()">📖 Read Full Book</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Contact -->
+  <div class="info-section" style="text-align:center;">
+    <h3>📬 Contact the author</h3>
+    <p style="font-size:14px; color:#a0b8d0; margin-bottom:12px;">
+      Questions about the book or ZARIF 2025 technology
+    </p>
+    <p><a href="mailto:zarif1961@gmail.com" style="color:#5ba3e0;">zarif1961@gmail.com</a> &nbsp;·&nbsp; 
+       <a href="https://www.zarif.uz" style="color:#5ba3e0;" target="_blank">www.zarif.uz</a> &nbsp;·&nbsp;
+       <a href="https://youtube.com/@ZarifTadjibaev" style="color:#5ba3e0;" target="_blank">YouTube</a>
+    </p>
+  </div>
+
+</div>
+
+<!-- EXCERPT VIEWER MODAL -->
+<div class="modal" id="excerptModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>📄 ZARIF 2025 — Book 1 Excerpt (4 pages)</h3>
+      <button class="modal-close" onclick="closeExcerpt()">✕</button>
+    </div>
+    <div class="modal-body">
+      <iframe id="excerptFrame" src="" title="Book excerpt PDF viewer"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- FULL BOOK VIEWER MODAL -->
+<div class="modal" id="fullBookModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>📖 ZARIF 2025 — Book 1 Full Edition</h3>
+      <button class="modal-close" onclick="closeFullBook()">✕</button>
+    </div>
+    <div class="modal-body">
+      <iframe id="fullBookFrame" src="" title="Full book PDF viewer"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- PAYPAL PAYMENT MODAL -->
+<div class="paypal-modal" id="paypalModal">
+  <div class="paypal-box">
+    <div style="font-size:48px; margin-bottom:8px;">📚</div>
+    <h3>ZARIF 2025 — Full Book</h3>
+    <p>You will be redirected to PayPal to complete your purchase securely. After payment, return to this page and click "I've paid".</p>
+    <div class="paypal-price"><span>$</span>99</div>
+    <p style="font-size:12px; color:#556a80; margin-bottom:20px;">One-time payment · Instant online access</p>
+    
+    <!-- PayPal.me link — replace YOUR_PAYPAL_USERNAME with your actual PayPal.me username -->
+    <a class="paypal-btn" 
+       href="https://www.paypal.com/paypalme/YOUR_PAYPAL_USERNAME/99" 
+       target="_blank"
+       onclick="showPaidButton()">
+      Pay $99 with PayPal
+    </a>
+    
+    <div id="paidConfirmBtn" style="display:none; margin-top:12px;">
+      <button class="btn btn-free" onclick="confirmPayment()" style="font-size:14px; padding:12px;">
+        ✅ I've paid — give me access
+      </button>
+    </div>
+    
+    <div class="paypal-note">
+      🔒 Secure payment via PayPal · After payment confirmation you get immediate online access to the full book.
+      <br>Questions? Email: <a href="mailto:zarif1961@gmail.com" style="color:#5ba3e0;">zarif1961@gmail.com</a>
+    </div>
+    <button class="paypal-close" onclick="closePayPal()">Cancel</button>
+  </div>
+</div>
+
+<div class="footer-note">
+  © 2026 Zarif Sharifovich Tadjibaev, PhD · US Patent No. 6,095,069 · www.zarif.uz
+</div>
+
+<script>
+  // Excerpt PDF — replace with your actual hosted PDF URL
+  const EXCERPT_PDF_URL = "Отрывка_Книга_1_С_обложкой_EN.pdf";
+  
+  // Full book PDF — replace with your actual hosted PDF URL (keep this private/secure)
+  const FULL_BOOK_PDF_URL = "ZARIF2025_Book1_Full_EN.pdf";
+
+  function openExcerpt() {
+    var modal = document.getElementById('excerptModal');
+    var frame = document.getElementById('excerptFrame');
+    frame.src = EXCERPT_PDF_URL;
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeExcerpt() {
+    document.getElementById('excerptModal').classList.remove('active');
+    document.getElementById('excerptFrame').src = '';
+    document.body.style.overflow = '';
+  }
+  function openFullBook() {
+    document.getElementById('fullBookModal').classList.add('active');
+    document.getElementById('fullBookFrame').src = FULL_BOOK_PDF_URL;
+    document.body.style.overflow = 'hidden';
+  }
+  function closeFullBook() {
+    document.getElementById('fullBookModal').classList.remove('active');
+    document.getElementById('fullBookFrame').src = '';
+    document.body.style.overflow = '';
+  }
+  function openPayPal() {
+    document.getElementById('paypalModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closePayPal() {
+    document.getElementById('paypalModal').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  function showPaidButton() {
+    setTimeout(function() {
+      document.getElementById('paidConfirmBtn').style.display = 'block';
+    }, 3000);
+  }
+  function confirmPayment() {
+    // Simple honor-system confirmation
+    // For real payment verification, you need a backend server
+    closePayPal();
+    document.getElementById('accessSection').classList.add('visible');
+    alert('Thank you for your purchase! You can now read the full book.');
+  }
+  // Close modals on backdrop click
+  document.getElementById('excerptModal').addEventListener('click', function(e) {
+    if (e.target === this) closeExcerpt();
+  });
+  document.getElementById('fullBookModal').addEventListener('click', function(e) {
+    if (e.target === this) closeFullBook();
+  });
+  document.getElementById('paypalModal').addEventListener('click', function(e) {
+    if (e.target === this) closePayPal();
+  });
+</script>
+</body>
+</html>
