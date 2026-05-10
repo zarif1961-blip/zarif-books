@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZARIF 2025 — Book 1 Reader</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #0a1628; color: #e0e8f0; min-height: 100vh; }
+
+  /* Header */
+  .header { background: linear-gradient(135deg, #0a1628, #1a2d4d); padding: 12px 20px; border-bottom: 2px solid #c9a227; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; position: sticky; top: 0; z-index: 100; }
+  .header-title { color: #c9a227; font-size: 14px; font-weight: 700; }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .header-badge { background: #0d3a2a; border: 1px solid #2a9d6a; color: #2ecc8a; font-size: 11px; padding: 3px 10px; border-radius: 20px; }
+  .timer-badge { background: #1a2d00; border: 1px solid #c9a227; color: #c9a227; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px; display: none; }
+  .timer-badge.urgent { background: #2d0f0f; border-color: #ff6b6b; color: #ff6b6b; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+
+  /* Screens */
+  .screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; padding: 40px 20px; text-align: center; }
+  .spinner { width: 48px; height: 48px; border: 4px solid #1e3a5f; border-top: 4px solid #c9a227; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .screen-title { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+  .screen-msg { font-size: 14px; color: #7a95b0; line-height: 1.7; max-width: 500px; }
+
+  /* Denied box */
+  .denied-box { background: #2d0f0f; border: 1px solid #7f1d1d; border-radius: 12px; padding: 32px; max-width: 500px; }
+  .denied-box h2 { color: #ff6b6b; font-size: 20px; margin-bottom: 12px; }
+  .denied-box p { color: #ffb4b4; font-size: 13px; line-height: 1.7; margin-bottom: 8px; }
+  .denied-box a { color: #5ba3e0; }
+
+  /* Expired box */
+  .expired-box { background: #1a2d00; border: 1px solid #c9a227; border-radius: 12px; padding: 32px; max-width: 500px; }
+  .expired-box h2 { color: #c9a227; font-size: 20px; margin-bottom: 12px; }
+  .expired-box p { color: #a0b8d0; font-size: 13px; line-height: 1.7; margin-bottom: 12px; }
+  .expired-box a { display: inline-block; background: linear-gradient(135deg, #c9a227, #e8b832); color: #0a1628; font-weight: 700; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-top: 8px; }
+
+  /* Reader */
+  .reader { display: none; max-width: 900px; margin: 0 auto; padding: 16px; }
+  .reader-info { background: #111f35; border: 1px solid #1e3a5f; border-radius: 10px; padding: 12px 20px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .reader-info p { font-size: 12px; color: #7a95b0; }
+  .reader-info strong { color: #c9a227; }
+  .pdf-container { background: #111f35; border: 1px solid #1e3a5f; border-radius: 10px; overflow: hidden; }
+  .pdf-container iframe { width: 100%; height: 82vh; border: none; display: block; }
+  .security-bar { background: #060e1a; border-top: 1px solid #1e3a5f; padding: 8px 20px; text-align: center; font-size: 11px; color: #3a5470; }
+
+  /* New link button */
+  .new-link-bar { background: #111f35; border: 1px solid #1e3a5f; border-radius: 10px; padding: 12px 20px; margin-top: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .new-link-bar p { font-size: 12px; color: #7a95b0; }
+  .new-link-bar a { background: #1a4d38; color: #2ecc8a; border: 1px solid #2a9d6a; font-size: 12px; font-weight: 700; padding: 6px 16px; border-radius: 6px; text-decoration: none; white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-title">📚 ZARIF 2025 — Book 1</div>
+  <div class="header-right">
+    <div class="timer-badge" id="timerBadge">⏱ <span id="timerText">5:00</span></div>
+    <div class="header-badge">🔒 Secure Reading Mode</div>
+  </div>
+</div>
+
+<!-- Loading -->
+<div class="screen" id="loadingScreen">
+  <div class="spinner"></div>
+  <div class="screen-title" style="color:#c9a227;">Verifying access...</div>
+  <div class="screen-msg">Please wait while we verify your personal reading token.</div>
+</div>
+
+<!-- Access Denied -->
+<div class="screen" id="deniedScreen" style="display:none;">
+  <div class="denied-box">
+    <div style="font-size:48px; margin-bottom:16px;">🔒</div>
+    <h2>Access Denied</h2>
+    <p>This reading link is invalid or does not exist.</p>
+    <p>To get access to ZARIF 2025 — Book 1, please purchase your personal reading link:</p>
+    <p style="margin-top:12px;">
+      <a href="https://zarif1961-blip.github.io/zarif-books/zarif_book-1_page.html">
+        → Go to Book 1 page
+      </a>
+    </p>
+    <p style="margin-top:12px;">Questions? <a href="mailto:zarif1961@gmail.com">zarif1961@gmail.com</a></p>
+  </div>
+</div>
+
+<!-- Token Expired -->
+<div class="screen" id="expiredScreen" style="display:none;">
+  <div class="expired-box">
+    <div style="font-size:48px; margin-bottom:16px;">⏱</div>
+    <h2>Link Expired</h2>
+    <p>Your reading link has expired (valid for 5 minutes only).</p>
+    <p>To continue reading, return to the book page and enter your <strong style="color:#c9a227;">Gmail + Transaction ID</strong> to get a new link instantly.</p>
+    <a href="https://zarif1961-blip.github.io/zarif-books/zarif_book-1_page.html">
+      🔄 Get New Reading Link
+    </a>
+    <p style="margin-top:16px; font-size:12px; color:#556a80;">
+      Your purchase is valid forever — you can get a new link anytime.
+    </p>
+  </div>
+</div>
+
+<!-- Book Reader -->
+<div class="reader" id="readerScreen">
+  <div class="reader-info">
+    <p>📖 <strong>ZARIF 2025 — Book 1</strong> · World's First Ideal Sewing Technology · Zarif Tadjibaev, PhD</p>
+    <p>🔒 <strong>Personal access</strong> · Read only · No download · No print</p>
+  </div>
+
+  <div class="pdf-container">
+    <iframe id="bookFrame" src="" title="ZARIF 2025 Book 1"></iframe>
+  </div>
+
+  <div class="new-link-bar">
+    <p>📌 If you close this page and want to read again — get a new link with your Gmail + Transaction ID</p>
+    <a href="https://zarif1961-blip.github.io/zarif-books/zarif_book-1_page.html">🔄 Get New Link</a>
+  </div>
+
+  <div class="security-bar">
+    🔒 Personal reading session · Sharing this link is prohibited · © 2026 Zarif Sharifovich Tadjibaev, PhD · www.zarif.uz
+  </div>
+</div>
+
+<script>
+  var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbysDi4NWd5RCD5xFUF6f6XFPJ_qKekFWsCiQt-uuyC9BDccTsPn8udX462xcyDYAPcW/exec";
+  var BOOK_PDF = "https://drive.google.com/file/d/1Hfl0vJnyTIF-u5HDW5rv4slxp1PteJ1N/preview";
+  var TOKEN_MINUTES = 5;
+  var timerInterval = null;
+
+  function getToken() {
+    var params = new URLSearchParams(window.location.search);
+    return params.get('token');
+  }
+
+  function showScreen(id) {
+    ['loadingScreen','deniedScreen','expiredScreen','readerScreen'].forEach(function(s) {
+      document.getElementById(s).style.display = 'none';
+    });
+    var el = document.getElementById(id);
+    if (el) {
+      el.style.display = (id === 'readerScreen') ? 'block' : 'flex';
+    }
+  }
+
+  function startTimer() {
+    var totalSeconds = TOKEN_MINUTES * 60;
+    var badge = document.getElementById('timerBadge');
+    var timerText = document.getElementById('timerText');
+    badge.style.display = 'block';
+
+    timerInterval = setInterval(function() {
+      totalSeconds--;
+
+      var mins = Math.floor(totalSeconds / 60);
+      var secs = totalSeconds % 60;
+      timerText.textContent = mins + ':' + (secs < 10 ? '0' : '') + secs;
+
+      // Urgent — last 60 seconds
+      if (totalSeconds <= 60) {
+        badge.classList.add('urgent');
+      }
+
+      // Timer finished — hide timer, book STAYS OPEN
+      if (totalSeconds <= 0) {
+        clearInterval(timerInterval);
+        badge.style.display = 'none';
+        // Book remains open — no redirect, no close
+      }
+
+    }, 1000);
+  }
+
+  function showReader() {
+    showScreen('readerScreen');
+    document.getElementById('bookFrame').src = BOOK_PDF;
+    startTimer();
+  }
+
+  var bookAlreadyOpen = false;
+
+  function verifyToken(token) {
+    var url = SCRIPT_URL + '?token=' + encodeURIComponent(token);
+    fetch(url, { method: 'GET', cache: 'no-store' })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.status === 'ok' && data.access === true) {
+          bookAlreadyOpen = true;
+          showReader();
+        } else if (data.reason === 'TOKEN_EXPIRED') {
+          showScreen('expiredScreen');
+        } else {
+          showScreen('deniedScreen');
+        }
+      })
+      .catch(function() {
+        showScreen('deniedScreen');
+      });
+  }
+
+  window.addEventListener('load', function() {
+    var token = getToken();
+    if (!token || token.length < 10) {
+      showScreen('deniedScreen');
+      return;
+    }
+    verifyToken(token);
+  });
+
+  // Block right-click
+  document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+  });
+</script>
+</body>
+</html>
